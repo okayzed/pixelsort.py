@@ -20,17 +20,17 @@ OUTPUT="output.JPG"
 
 # PARSE OPTIONS
 import argparse
-parser = argparse.ArgumentParser()
+parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
-parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true')
-parser.add_argument('--sort-start', dest='sort_to_start', default=SORT_TO_START, action='store_true')
-parser.add_argument('--sort-end', dest='sort_to_end', default=SORT_TO_END, action='store_true')
-parser.add_argument('--noise', dest='random_sort', default=RANDOM_SORT, action='store_true')
-parser.add_argument('--max-chunk', dest='max_chunk', default=MAX_CHUNK, type=int)
-parser.add_argument('--num-chunks', dest='num_chunks', default=NUM_CHUNK, type=int)
-parser.add_argument('--white-threshold', dest='black_threshold', type=int, default=BLACK_THRESHOLD)
-parser.add_argument('--black-threshold', dest='white_threshold', type=int, default=WHITE_THRESHOLD)
-parser.add_argument('--output', dest='output', default=OUTPUT, type=str)
+parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
+parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
+parser.add_argument('--sort-start', dest='sort_to_start', default=SORT_TO_START, action='store_true', help='start sort from start of line')
+parser.add_argument('--sort-end', dest='sort_to_end', default=SORT_TO_END, action='store_true', help='sort until the end of the line')
+parser.add_argument('--noise', dest='random_sort', default=RANDOM_SORT, action='store_true', help='add noise to the sort')
+parser.add_argument('--max-chunk', dest='max_chunk', default=MAX_CHUNK, type=int, help='how many chunks to use with the delay effect')
+parser.add_argument('--num-chunks', dest='num_chunks', default=NUM_CHUNK, type=int, help='if sortable area is too large, break into this many chunks')
+parser.add_argument('--white-threshold', dest='black_threshold', type=int, default=BLACK_THRESHOLD, help='threshold for a pixel to be considered "black"')
+parser.add_argument('--black-threshold', dest='white_threshold', type=int, default=WHITE_THRESHOLD, help='threshold for a pixel to be considered "white"')
 args = parser.parse_args()
 
 # }}} OPTIONS & ARGUMENT PARSING

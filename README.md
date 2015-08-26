@@ -1,4 +1,3 @@
-
 pixelsort
 =========
 
@@ -9,6 +8,7 @@ running
 =======
 
 python pixelsort.py someimage.jpg
+python pixelsort.py --help
 
 
 viewing
@@ -16,17 +16,8 @@ viewing
 
 open output.JPG
 
-implementation
-==============
-
-* does a horizontal sort (complete) on a line by line basis
-
 todo
 ====
 
-* implement partial sorting
-* implement vertical sorts
 * add box sort / radial sort?
-* add options
 * make it fast
-
