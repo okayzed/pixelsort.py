@@ -6,8 +6,10 @@ import colorsys
 BLACK_THRESHOLD = 30
 WHITE_THRESHOLD = 200
 
-SORT_TO_END = False
+SORT_TO_END = True
 SORT_TO_START = False
+RANDOM_SORT = True
+REVERSE = False
 
 HLS_LOOKUP = {}
 
@@ -27,7 +29,11 @@ def sort_from(im, pix, start, end):
         to_sort.append((hls, val))
 
     # sort by lightness
-    to_sort.sort(key=lambda v: v[0][1])
+    if REVERSE:
+        to_sort.sort(key=lambda v: -v[0][1] + ((RANDOM_SORT or 0) and random.randint(-10, 10)))
+    else:
+        to_sort.sort(key=lambda v: v[0][1] + ((RANDOM_SORT or 0) and random.randint(-10, 10)))
+        
 
     putpixel = im.putpixel
     for y, x in enumerate(to_sort):
