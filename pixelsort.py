@@ -26,6 +26,7 @@ parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='F
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
 parser.add_argument('--reverse', dest='reverse', default=REVERSE, action='store_true', help='reverse sort direction')
 parser.add_argument('--no-show', dest='no_show', default=False, action='store_true', help='Dont show image after processing')
+parser.add_argument('--saturation', dest='saturation', default=False, action='store_true', help='sort by saturation')
 parser.add_argument('--sort-start', dest='sort_to_start', default=SORT_TO_START, action='store_true', help='start sort from start of line')
 parser.add_argument('--sort-end', dest='sort_to_end', default=SORT_TO_END, action='store_true', help='sort until the end of the line')
 parser.add_argument('--noise', dest='random_sort', default=RANDOM_SORT, action='store_true', help='add noise to the sort')
@@ -71,10 +72,15 @@ def sort_from(im, pix, big_start, big_end):
         to_sort.append((hls, val))
 
     # sort by lightness
+
+    idx = 1
+    if args.saturation:
+        idx = 2
+
     if args.reverse:
-        to_sort.sort(key=lambda v: -v[0][1] + ((args.random_sort or 0) and random.randint(-10, 10)))
+        to_sort.sort(key=lambda v: -v[0][idx] + ((args.random_sort or 0) and random.randint(-10, 10)))
     else:
-        to_sort.sort(key=lambda v: v[0][1] + ((args.random_sort or 0) and random.randint(-10, 10)))
+        to_sort.sort(key=lambda v: v[0][idx] + ((args.random_sort or 0) and random.randint(-10, 10)))
         
 
     putpixel = im.putpixel
