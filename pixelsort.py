@@ -11,6 +11,8 @@ SORT_TO_START = True
 RANDOM_SORT = False
 REVERSE = False
 
+ROTATE = True
+
 NUM_CHUNK = 16
 MAX_CHUNK = 200 # pixels
 
@@ -59,6 +61,9 @@ def sort_from(im, pix, big_start, big_end):
 
 def pix_sort(filename):
     im = Image.open(filename)
+    if ROTATE:
+        im = im.rotate(90)
+
     width, height = im.size
     pix = im.getdata()
 
@@ -103,6 +108,8 @@ def pix_sort(filename):
 
 
     seeds = []
+    if ROTATE:
+        im = im.rotate(-90)
     im.save("output.JPG")
 
 
