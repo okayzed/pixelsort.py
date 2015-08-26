@@ -7,16 +7,34 @@ BLACK_THRESHOLD = 30
 WHITE_THRESHOLD = 200
 
 SORT_TO_END = True
-SORT_TO_START = False
-RANDOM_SORT = True
+SORT_TO_START = True
+RANDOM_SORT = False
 REVERSE = False
+
+NUM_CHUNK = 16
+MAX_CHUNK = 200 # pixels
 
 HLS_LOOKUP = {}
 
 rgb_to_hls = colorsys.rgb_to_hls
-def sort_from(im, pix, start, end):
+def sort_from(im, pix, big_start, big_end):
     to_sort = []
     width, height = im.size
+
+
+    if NUM_CHUNK:
+        if big_end - big_start > MAX_CHUNK:
+            delta = big_end - big_start
+            chunk_size = (delta / NUM_CHUNK)
+
+            for i in xrange(delta / chunk_size):
+                sort_from(im, pix, big_start + (i * chunk_size), big_start + ((i + 1) * chunk_size))
+
+            return
+
+    start = big_start
+    end = big_end
+
     for x in xrange(start, end):
         val = pix[x]
         try:
