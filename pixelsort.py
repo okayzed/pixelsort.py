@@ -8,8 +8,8 @@ import colorsys
 BLACK_THRESHOLD = 30
 WHITE_THRESHOLD = 200
 
-SORT_TO_END = True
-SORT_TO_START = True
+SORT_TO_END = False
+SORT_TO_START = False
 RANDOM_SORT = False
 REVERSE = False
 ROTATE = False
@@ -24,6 +24,8 @@ parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
 parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
+parser.add_argument('--reverse', dest='reverse', default=REVERSE, action='store_true', help='reverse sort direction')
+parser.add_argument('--no-show', dest='no_show', default=False, action='store_true', help='Dont show image after processing')
 parser.add_argument('--sort-start', dest='sort_to_start', default=SORT_TO_START, action='store_true', help='start sort from start of line')
 parser.add_argument('--sort-end', dest='sort_to_end', default=SORT_TO_END, action='store_true', help='sort until the end of the line')
 parser.add_argument('--noise', dest='random_sort', default=RANDOM_SORT, action='store_true', help='add noise to the sort')
@@ -69,7 +71,7 @@ def sort_from(im, pix, big_start, big_end):
         to_sort.append((hls, val))
 
     # sort by lightness
-    if REVERSE:
+    if args.reverse:
         to_sort.sort(key=lambda v: -v[0][1] + ((args.random_sort or 0) and random.randint(-10, 10)))
     else:
         to_sort.sort(key=lambda v: v[0][1] + ((args.random_sort or 0) and random.randint(-10, 10)))
@@ -111,7 +113,7 @@ def pix_sort(filename):
             tot = hls[1]
             if tot < args.black_threshold or tot > args.white_threshold:
                 if not start:
-                    if args.sort_to_end:
+                    if args.sort_to_start:
                         start = 0
                     else :
                         start = j
@@ -135,6 +137,9 @@ def pix_sort(filename):
     if args.rotate:
         im = im.rotate(-90)
     im.save(args.output)
+
+    if not args.no_show:
+        im.show()
 
 # }}}
 
