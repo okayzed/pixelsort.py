@@ -15,7 +15,9 @@ REVERSE = False
 ROTATE = False
 NUM_CHUNK = 0
 MAX_CHUNK = 200 # pixels
-OUTPUT="output.JPG"
+OUTPUT="out/output_%03i.JPG"
+
+ANIMATE=False
 
 
 # PARSE OPTIONS
@@ -23,6 +25,7 @@ import argparse
 parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
 parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
+parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
 parser.add_argument('--reverse', dest='reverse', default=REVERSE, action='store_true', help='reverse sort direction')
 parser.add_argument('--no-show', dest='no_show', default=False, action='store_true', help='Dont show image after processing')
@@ -42,6 +45,8 @@ args = parser.parse_args()
 # {{{ LINE SORTING 
 HLS_LOOKUP = {}
 rgb_to_hls = colorsys.rgb_to_hls
+
+SORTS=[]
 def sort_from(im, pix, big_start, big_end):
     to_sort = []
     width, height = im.size
@@ -83,6 +88,9 @@ def sort_from(im, pix, big_start, big_end):
         to_sort.sort(key=lambda v: v[0][idx] + ((args.random_sort or 0) and random.randint(-10, 10)))
         
 
+    if big_end - big_start > 5:
+        SORTS.append((big_start, big_end, to_sort[0], to_sort[-1]))
+
     putpixel = im.putpixel
     for y, x in enumerate(to_sort):
         putpixel((y + (start % width), (start / width)), x[1])
@@ -95,6 +103,8 @@ def pix_sort(filename):
     im = Image.open(filename)
     if args.rotate:
         im = im.rotate(90)
+
+    ratio = float(200) / im.width;
 
     width, height = im.size
     pix = im.getdata()
@@ -137,15 +147,136 @@ def pix_sort(filename):
 
 
 
-
-
     seeds = []
     if args.rotate:
         im = im.rotate(-90)
-    im.save(args.output)
 
-    if not args.no_show:
-        im.show()
+    im.save(args.output % 0)
+    if not args.animate:
+        return
+
+
+    old_im = Image.open(filename)
+    iterations = 10
+    new_im = old_im.copy()
+    new_im.save(args.output % 0)
+    
+    if args.rotate:
+        old_im = old_im.rotate(90)
+
+    for i in xrange(1, iterations):
+
+        if args.rotate:
+            new_im = new_im.rotate(90)
+        print "ITERATION %i" % i
+        pixels = 0
+        for sort in SORTS:
+            big_start, big_end, start_val, end_val = sort
+
+            putpixel = new_im.putpixel
+            to_sort = []
+            start = big_start
+            end = big_end - ((big_end - big_start) / iterations) * (iterations - i)
+            remaining = big_end - end
+            pixels += end - start
+
+            for x in xrange(start, end):
+                val = pix[x]
+                try:
+                    hls = HLS_LOOKUP[val]
+                except:
+                    try:
+                        hls = HLS_LOOKUP[val] = rgb_to_hls(*val)
+                    except:
+                        continue
+                to_sort.append((hls, val))
+
+            for y, x in enumerate(to_sort):
+                try:
+                    putpixel((y + (start % width), (start / width)), x[1])
+                except:
+                    pass
+
+        print "SORTED %i PIXELS" % pixels
+        if args.rotate:
+            new_im = new_im.rotate(-90)
+        new_im.save(args.output % i)
+
+    mashed_im = new_im.copy()
+    distortions = 10
+    for j in xrange(1, distortions):
+        pix = old_im.getdata()
+
+        new_im = new_im.copy()
+        step_width = width / float(distortions)
+
+        print "STEP_WIDTH", step_width
+        for i in xrange(1, iterations):
+            if args.rotate:
+                new_im = new_im.rotate(90)
+            print "ITERATION %i" % i
+            pixels = 0
+            for sort in SORTS:
+                big_start, big_end, start_val, end_val = sort
+
+                putpixel = new_im.putpixel
+                to_sort = []
+                start = big_start
+                end = big_end - ((big_end - big_start) / iterations) * (iterations - i)
+                pixels += end - start
+
+                delta = j*step_width + (i / float(iterations) * step_width) + 1
+                delta = -delta
+
+#                if j >= distortions / 2:
+#                    delta = (distortions - j) * 5
+#
+
+#                if j % 2 == 1:
+#                    delta = -delta
+
+
+
+
+                remaining = big_end - end
+
+                for x in xrange(start, end):    
+                    if x - delta < 0:
+                        x += width
+
+                    if x - delta >= new_im.height:
+                        if distortions - j <= 5 and x % 2 == 0:
+                            delta += width
+                        elif distortions - j == 1:
+                            x -= width
+                        else:
+                            delta += width
+                        
+                    val = pix[int(x-delta)]
+
+                    try:
+                        hls = HLS_LOOKUP[val]
+                    except:
+                        try:
+                            hls = HLS_LOOKUP[val] = rgb_to_hls(*val)
+                        except:
+                            continue
+                    to_sort.append((hls, val))
+
+                for y, x in enumerate(to_sort):
+                    try:
+                        putpixel((y + (start % width), (start / width)), x[1])
+                    except:
+                        pass
+
+            print "SORTED %i PIXELS" % pixels
+            if args.rotate:
+                new_im = new_im.rotate(-90)
+            new_im.save(args.output % (i + iterations*j))
+
+
+    # now we have to do iterations on the middle IM...
+
 
 # }}}
 
