@@ -1,6 +1,7 @@
 from PIL import Image
 import random
 import colorsys
+import sys
 
 
 # {{{ ARGUMENTS & OPTIONS
@@ -166,11 +167,14 @@ def pix_sort(filename):
     if args.rotate:
         old_im = old_im.rotate(90)
 
+    print "0 / 10",
     for i in xrange(1, iterations):
 
         if args.rotate:
             new_im = new_im.rotate(90)
-        print "ITERATION %i" % i
+        sys.stdout.write(".")
+        sys.stdout.flush()
+
         pixels = 0
         for sort in SORTS:
             big_start, big_end, start_val, end_val = sort
@@ -199,11 +203,11 @@ def pix_sort(filename):
                 except:
                     pass
 
-        print "SORTED %i PIXELS" % pixels
         if args.rotate:
             new_im = new_im.rotate(-90)
         new_im.save(args.output % i)
 
+    print ""
     mashed_im = new_im.copy()
     distortions = 10
     for j in xrange(1, distortions):
@@ -211,12 +215,12 @@ def pix_sort(filename):
 
         new_im = new_im.copy()
         step_width = width / float(distortions)
-
-        print "STEP_WIDTH", step_width
+        print "%i / %i" % (j, distortions),
         for i in xrange(1, iterations):
             if args.rotate:
                 new_im = new_im.rotate(90)
-            print "ITERATION %i" % i
+            sys.stdout.write(".")
+            sys.stdout.flush()
             pixels = 0
             for sort in SORTS:
                 big_start, big_end, start_val, end_val = sort
@@ -276,10 +280,11 @@ def pix_sort(filename):
                     except:
                         pass
 
-            print "SORTED %i PIXELS" % pixels
             if args.rotate:
                 new_im = new_im.rotate(-90)
             new_im.save(args.output % (i + iterations*j))
+
+        print ""
 
 
     # now we have to do iterations on the middle IM...
