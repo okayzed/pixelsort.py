@@ -18,12 +18,14 @@ MAX_CHUNK = 200 # pixels
 OUTPUT="out/output_%03i.JPG"
 
 ANIMATE=False
+JITTER=False
 
 
 # PARSE OPTIONS
 import argparse
 parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
+parser.add_argument('--jitter', dest='jitter', default=JITTER, action='store_true', help='Filename for output image')
 parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
 parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
@@ -226,31 +228,36 @@ def pix_sort(filename):
                 pixels += end - start
 
                 delta = j*step_width + (i / float(iterations) * step_width) + 1
+                if args.jitter:
+                    delta = j*5
+
+                    if j >= distortions / 2:
+                        delta = (distortions - j) * 5
+
+                    if j % 2 == 1:
+                        delta = -delta
+
+
+
+
                 delta = -delta
-
-#                if j >= distortions / 2:
-#                    delta = (distortions - j) * 5
-#
-
-#                if j % 2 == 1:
-#                    delta = -delta
-
-
-
-
                 remaining = big_end - end
 
                 for x in xrange(start, end):    
                     if x - delta < 0:
                         x += width
 
-                    if x - delta >= new_im.height:
-                        if distortions - j <= 5 and x % 2 == 0:
+                    if args.jitter:
+                        if x - delta >= new_im.width:
+                            x -= width
+                    elif x - delta >= new_im.height:
+                        if distortions -j <= 5 and x % 2 == 0:
                             delta += width
-                        elif distortions - j == 1:
+                        elif distortions - j <= 1:
                             x -= width
                         else:
                             delta += width
+
                         
                     val = pix[int(x-delta)]
 
