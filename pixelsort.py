@@ -19,7 +19,7 @@ MAX_CHUNK = 200 # pixels
 OUTPUT="out/output_%03i.JPG"
 
 ANIMATE=False
-JITTER=False
+JITTER=5
 WIDTH=600
 
 
@@ -27,7 +27,7 @@ WIDTH=600
 import argparse
 parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
-parser.add_argument('--jitter', dest='jitter', default=JITTER, action='store_true', help='Filename for output image')
+parser.add_argument('--jitter', dest='jitter', default=JITTER, type=int, help='Filename for output image')
 parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
 parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
@@ -245,10 +245,10 @@ def pix_sort(filename):
 
                 delta = j*step_width + (i / float(iterations) * step_width) + 1
                 if args.jitter:
-                    delta = j*5
+                    delta = j*args.jitter
 
                     if j >= distortions / 2:
-                        delta = (distortions - j) * 5
+                        delta = (distortions - j) * args.jitter
 
                     if j % 2 == 1:
                         delta = -delta
