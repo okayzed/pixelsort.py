@@ -20,6 +20,7 @@ OUTPUT="out/output_%03i.JPG"
 
 ANIMATE=False
 JITTER=False
+WIDTH=600
 
 
 # PARSE OPTIONS
@@ -36,6 +37,7 @@ parser.add_argument('--saturation', dest='saturation', default=False, action='st
 parser.add_argument('--sort-start', dest='sort_to_start', default=SORT_TO_START, action='store_true', help='start sort from start of line')
 parser.add_argument('--sort-end', dest='sort_to_end', default=SORT_TO_END, action='store_true', help='sort until the end of the line')
 parser.add_argument('--noise', dest='random_sort', default=RANDOM_SORT, action='store_true', help='add noise to the sort')
+parser.add_argument('--width', dest='width', default=WIDTH, type=int, help='how large to rescale the image')
 parser.add_argument('--max-chunk', dest='max_chunk', default=MAX_CHUNK, type=int, help='how many chunks to use with the delay effect')
 parser.add_argument('--num-chunks', dest='num_chunks', default=NUM_CHUNK, type=int, help='if sortable area is too large, break into this many chunks')
 parser.add_argument('--white-threshold', dest='black_threshold', type=int, default=BLACK_THRESHOLD, help='threshold for a pixel to be considered "black"')
@@ -104,6 +106,15 @@ def sort_from(im, pix, big_start, big_end):
 # {{{ SORT OF FILE LINE BY LINE
 def pix_sort(filename):
     im = Image.open(filename)
+    width, height = im.size
+    new_width, new_height = im.size
+
+    if args.width:
+        new_width = args.width
+        new_height = int(height * float(new_width) / width)
+
+        im = im.resize((new_width, new_height))
+
     if args.rotate:
         im = im.rotate(90)
 
@@ -160,6 +171,7 @@ def pix_sort(filename):
 
 
     old_im = Image.open(filename)
+    old_im = old_im.resize((new_width, new_height))
     iterations = 10
     new_im = old_im.copy()
     new_im.save(args.output % 0)
