@@ -19,7 +19,7 @@ MAX_CHUNK = 200 # pixels
 OUTPUT="out/output_%03i.JPG"
 
 ANIMATE=False
-JITTER=5
+JITTER=0
 WIDTH=600
 
 
@@ -27,9 +27,7 @@ WIDTH=600
 import argparse
 parser = argparse.ArgumentParser(description='Primitive pixel sort')
 parser.add_argument('IMAGE', type=str)
-parser.add_argument('--jitter', dest='jitter', default=JITTER, type=int, help='Filename for output image')
 parser.add_argument('--output', dest='output', default=OUTPUT, type=str, help='Filename for output image')
-parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
 parser.add_argument('--rotate', dest='rotate', default=ROTATE, action='store_true', help='do a vertical pixel sort')
 parser.add_argument('--reverse', dest='reverse', default=REVERSE, action='store_true', help='reverse sort direction')
 parser.add_argument('--no-show', dest='no_show', default=False, action='store_true', help='Dont show image after processing')
@@ -42,7 +40,12 @@ parser.add_argument('--max-chunk', dest='max_chunk', default=MAX_CHUNK, type=int
 parser.add_argument('--num-chunks', dest='num_chunks', default=NUM_CHUNK, type=int, help='if sortable area is too large, break into this many chunks')
 parser.add_argument('--white-threshold', dest='black_threshold', type=int, default=BLACK_THRESHOLD, help='threshold for a pixel to be considered "black"')
 parser.add_argument('--black-threshold', dest='white_threshold', type=int, default=WHITE_THRESHOLD, help='threshold for a pixel to be considered "white"')
+
+# animation args
+parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
+parser.add_argument('--jitter', dest='jitter', default=JITTER, type=int, help='how much shoudl animation jitter?')
 args = parser.parse_args()
+
 
 # }}} OPTIONS & ARGUMENT PARSING
 
@@ -228,7 +231,7 @@ def pix_sort(filename):
         new_im = new_im.copy()
         step_width = width / float(distortions)
         print "%i / %i" % (j, distortions),
-        for i in xrange(1, iterations):
+        for i in xrange(0, iterations):
             if args.rotate:
                 new_im = new_im.rotate(90)
             sys.stdout.write(".")
@@ -267,9 +270,7 @@ def pix_sort(filename):
                         if x - delta >= new_im.width:
                             x -= width
                     elif x - delta >= new_im.height:
-                        if distortions -j <= 5 and x % 2 == 0:
-                            delta += width
-                        elif distortions - j <= 1:
+                        if distortions - j == 1:
                             x -= width
                         else:
                             delta += width
