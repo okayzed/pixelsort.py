@@ -19,6 +19,7 @@ MAX_CHUNK = 200 # pixels
 OUTPUT="out/output_%03i.JPG"
 
 ANIMATE=False
+SMOOTH=False
 JITTER=0
 WIDTH=600
 
@@ -44,6 +45,9 @@ parser.add_argument('--black-threshold', dest='white_threshold', type=int, defau
 # animation args
 parser.add_argument('--animate', dest='animate', default=ANIMATE, action='store_true', help='animate')
 parser.add_argument('--jitter', dest='jitter', default=JITTER, type=int, help='how much shoudl animation jitter?')
+parser.add_argument('--smooth', dest='smooth', default=SMOOTH, action='store_true', help='smooth out animation')
+parser.add_argument('--distortions', dest='distortions', default=10, type=int, help='how many distortions to run')
+parser.add_argument('--fps', dest='iterations', default=10, type=int, help='how many frames per distortion')
 args = parser.parse_args()
 
 
@@ -175,7 +179,7 @@ def pix_sort(filename):
 
     old_im = Image.open(filename)
     old_im = old_im.resize((new_width, new_height))
-    iterations = 10
+    iterations = args.iterations
     new_im = old_im.copy()
     new_im.save(args.output % 0)
     
@@ -224,7 +228,7 @@ def pix_sort(filename):
 
     print ""
     mashed_im = new_im.copy()
-    distortions = 10
+    distortions = args.distortions
     for j in xrange(1, distortions):
         pix = old_im.getdata()
 
@@ -243,10 +247,10 @@ def pix_sort(filename):
                 putpixel = new_im.putpixel
                 to_sort = []
                 start = big_start
-                end = big_end - ((big_end - big_start) / iterations) * (iterations - i)
+                end = big_end - ((big_end - big_start) / iterations) * (iterations - i - 1)
                 pixels += end - start
 
-                delta = j*step_width + (i / float(iterations) * step_width) + 1
+                delta = j*step_width + ((i+1) / float(iterations) * step_width) + 1
                 if args.jitter:
                     delta = j*args.jitter
 
@@ -263,6 +267,10 @@ def pix_sort(filename):
                 remaining = big_end - end
 
                 for x in xrange(start, end):    
+                    if distortions - j > 1 and args.smooth:
+                        speed_adj = (hash(str(x)) % (distortions - j)) - (distortions - j) / 2
+                        x += speed_adj
+
                     if x - delta < 0:
                         x += width
 
