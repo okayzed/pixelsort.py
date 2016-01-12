@@ -186,7 +186,7 @@ def pix_sort(filename):
     if args.rotate:
         old_im = old_im.rotate(90)
 
-    print "0 / 10",
+    print "0 / %s" % (args.distortions),
     for i in xrange(1, iterations):
 
         if args.rotate:
