@@ -2,6 +2,7 @@ from PIL import Image
 import random
 import colorsys
 import sys
+import os
 
 
 # {{{ ARGUMENTS & OPTIONS
@@ -16,7 +17,8 @@ REVERSE = False
 ROTATE = False
 NUM_CHUNK = 0
 MAX_CHUNK = 200 # pixels
-OUTPUT="out/output_%03i.JPG"
+OUTPUT="out/output.JPG"
+OUTPUT_SUFFIX="_%03i"
 
 ANIMATE=False
 SMOOTH=False
@@ -50,11 +52,32 @@ parser.add_argument('--distortions', dest='distortions', default=10, type=int, h
 parser.add_argument('--fps', dest='iterations', default=10, type=int, help='how many frames per distortion')
 args = parser.parse_args()
 
+# FIGURE OUT THE OUTPUT FILENAME...
+
+if args.output:
+    output_name = args.output.split
+    dirname = os.path.dirname(args.output)
+    if not os.path.exists(dirname):
+        os.makedirs(dirname)
+
+    basename = os.path.basename(args.output)
+    basename, ext = basename.split(".")
+
+    if args.animate:
+        basename = basename + OUTPUT_SUFFIX
+
+    args.output = os.path.join(dirname, ".".join([basename, ext]))
+
+
+
+print "Writing output to", args.output
+
+
 
 # }}} OPTIONS & ARGUMENT PARSING
 
 
-# {{{ LINE SORTING 
+# {{{ LINE SORTING
 HLS_LOOKUP = {}
 rgb_to_hls = colorsys.rgb_to_hls
 
@@ -98,7 +121,7 @@ def sort_from(im, pix, big_start, big_end):
         to_sort.sort(key=lambda v: -v[0][idx] + ((args.random_sort or 0) and random.randint(-10, 10)))
     else:
         to_sort.sort(key=lambda v: v[0][idx] + ((args.random_sort or 0) and random.randint(-10, 10)))
-        
+
 
     if big_end - big_start > 5:
         SORTS.append((big_start, big_end, to_sort[0], to_sort[-1]))
@@ -172,8 +195,8 @@ def pix_sort(filename):
     if args.rotate:
         im = im.rotate(-90)
 
-    im.save(args.output % 0)
     if not args.animate:
+        im.save(args.output)
         return
 
 
@@ -182,7 +205,7 @@ def pix_sort(filename):
     iterations = args.iterations
     new_im = old_im.copy()
     new_im.save(args.output % 0)
-    
+
     if args.rotate:
         old_im = old_im.rotate(90)
 
@@ -266,7 +289,7 @@ def pix_sort(filename):
                 delta = -delta
                 remaining = big_end - end
 
-                for x in xrange(start, end):    
+                for x in xrange(start, end):
                     if distortions - j > 1 and args.smooth:
                         speed_adj = (hash(str(x)) % (distortions - j)) - (distortions - j) / 2
                         x += speed_adj
@@ -283,7 +306,7 @@ def pix_sort(filename):
                         else:
                             delta += width
 
-                        
+
                     val = pix[int(x-delta)]
 
                     try:
@@ -318,10 +341,6 @@ def pix_sort(filename):
 
 # {{{ ENTRY POINT
 def main():
-
-    import os
-    if not os.path.exists("out"):
-        os.mkdir("out")
 
     pix_sort(args.IMAGE)
 
