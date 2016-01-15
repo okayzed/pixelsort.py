@@ -318,6 +318,11 @@ def pix_sort(filename):
 
 # {{{ ENTRY POINT
 def main():
+
+    import os
+    if not os.path.exists("out"):
+        os.mkdir("out")
+
     pix_sort(args.IMAGE)
 
 if __name__ == "__main__":
