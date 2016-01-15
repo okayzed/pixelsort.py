@@ -34,33 +34,23 @@ viewing
 examples
 ========
 
-
-<style>
-  img {
-    width: 200px;
-    height: auto;
-  }
-
-
-</style>
-
-![a day on neptune](./images/adayonneptune.gif )
+<img src="./images/adayonneptune.gif " width="200" />
 <br />
 `--animate --smooth --rotate --jitter 1`
 
-![earth rise over moon](./images/earthrise.gif )
+<img src="./images/earthrise.gif " width="200" />
 <br />
 `--animate --smooth --rotate`
 
-![pulsing sun](./images/pulsingsun.gif )
+<img src="./images/pulsingsun.gif " width="200" />
 <br />
 `--animate --smooth --jitter 1`
 
-![stolen planets](./images/stolen_planets.gif )
+<img src="./images/stolen_planets.gif " width="200" />
 <br />
 `--animate --smooth --rotate`
 
-![blinded sun](./images/blindingsun.gif )
+<img src="./images/blindingsun.gif " width="200" />
 <br />
 `--animate --num-chunks 7 --smooth --distortions 3`
 
